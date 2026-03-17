@@ -5,24 +5,18 @@
 You are given a string `s`.  
 Find the length of the **longest substring** that contains **at most 2 distinct characters**.
 
-A substring is a contiguous sequence of characters.
-
 ---
 
 ## Examples
 
 ### Example 1
-
 ```
 Input: s = "eceba"
 Output: 3
 Explanation: "ece"
 ```
 
----
-
 ### Example 2
-
 ```
 Input: s = "ccaabbb"
 Output: 5
@@ -31,7 +25,7 @@ Explanation: "aabbb"
 
 ---
 
-## Pattern
+# Pattern
 
 ```
 Sliding Window + K Distinct Elements
@@ -39,46 +33,67 @@ Sliding Window + K Distinct Elements
 
 ---
 
-## How to Identify
+# 🧪 Brute Force Approach
 
-| Clue in Problem | Pattern |
-|----------------|--------|
-| "at most 2 distinct" | Sliding Window with K Distinct |
+## Idea
 
----
-
-## Approach
-
-- Use a sliding window `[left, right]`
-- Maintain a `HashMap` to track frequency of characters
-- Expand the window using `right`
-- If distinct characters exceed 2 → shrink from `left`
-- Keep updating maximum length
+- Generate all substrings
+- For each substring:
+  - Count distinct characters
+  - If ≤ 2 → update answer
 
 ---
 
-## Algorithm
+## Java Code (Brute Force)
 
-1. Initialize:
-   - `left = 0`
-   - `maxLength = 0`
-   - `HashMap<Character, Integer> map`
+```java
+public int lengthOfLongestSubstringTwoDistinctBrute(String s) {
 
-2. Traverse using `right` pointer:
-   - Add current character to map
-   - If map size > 2:
-     - Shrink window from left
-     - Decrease frequency
-     - Remove character if frequency becomes 0
+    int n = s.length();
+    int maxLength = 0;
 
-3. Update answer:
-   ```
-   maxLength = max(maxLength, right - left + 1)
-   ```
+    for (int i = 0; i < n; i++) {
+
+        HashSet<Character> set = new HashSet<>();
+
+        for (int j = i; j < n; j++) {
+
+            set.add(s.charAt(j));
+
+            if (set.size() > 2) {
+                break;
+            }
+
+            maxLength = Math.max(maxLength, j - i + 1);
+        }
+    }
+
+    return maxLength;
+}
+```
 
 ---
 
-## Java Code
+## Complexity (Brute)
+
+- Time: `O(n^2)`
+- Space: `O(1)` (at most 3 characters)
+
+---
+
+# 🚀 Optimized Approach (Sliding Window)
+
+## Idea
+
+- Use two pointers: `left` and `right`
+- Maintain a `HashMap` for frequency
+- Expand window
+- If distinct > 2 → shrink window
+- Track max length
+
+---
+
+## Java Code (Optimal)
 
 ```java
 public int lengthOfLongestSubstringTwoDistinct(String s) {
@@ -114,17 +129,23 @@ public int lengthOfLongestSubstringTwoDistinct(String s) {
 
 ---
 
-## Dry Run
+## Complexity (Optimized)
+
+- Time: `O(n)`
+- Space: `O(1)`
+
+---
+
+# 🔍 Dry Run
 
 ### Input: `"eceba"`
 
 ```
 e → ec → ece ✅
-eceb ❌ (3 distinct)
-Shrink → ceb → eb
+eceb ❌ → shrink → eb
 ```
 
-Max Length = `3`
+Answer = `3`
 
 ---
 
@@ -132,21 +153,14 @@ Max Length = `3`
 
 ```
 cc → ccaa → ccaab ❌
-Shrink → aabbb ✅
+shrink → aabbb ✅
 ```
 
-Max Length = `5`
+Answer = `5`
 
 ---
 
-## Complexity
-
-- Time Complexity: `O(n)`
-- Space Complexity: `O(1)` (at most 3 characters in map)
-
----
-
-## Key Insight
+# 🧠 Key Insight
 
 ```
 Control the number of distinct characters in the window
@@ -154,25 +168,25 @@ Control the number of distinct characters in the window
 
 ---
 
-## Variations
-
-| Problem Variation | Approach |
-|------------------|---------|
-| At most K distinct | Replace `2` with `k` |
-| Exactly K distinct | Use helper: atMost(K) - atMost(K-1) |
-| Only 1 distinct | Longest repeating character |
-
----
-
-## Mistakes to Avoid
+# ⚠️ Mistakes to Avoid
 
 - Using `if` instead of `while` for shrinking
-- Forgetting to remove character when frequency becomes 0
-- Updating answer before making window valid
+- Not removing characters when frequency becomes 0
+- Updating answer when window is invalid
 
 ---
 
-## Related Problems
+# 🔁 Variations
+
+| Problem | Approach |
+|--------|--------|
+| At most K distinct | Same template, replace `2` with `k` |
+| Exactly K distinct | atMost(k) - atMost(k-1) |
+| No duplicates | Use HashSet instead of HashMap |
+
+---
+
+# 📌 Related Problems
 
 - Longest Substring Without Repeating Characters
 - Fruit Into Baskets
