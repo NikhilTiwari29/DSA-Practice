@@ -135,8 +135,45 @@ public int longestSubarrayBetter(int[] arr, int k) {
 ## ⚠️ Important Condition
 
 ```
-Works ONLY when array contains POSITIVE numbers
+Works ONLY when array contains NON-NEGATIVE numbers (positives and zero)
 ```
+
+---
+
+## ❓ Why this condition is required
+
+Sliding window depends on **monotonic behavior of sum**:
+
+- Adding elements → sum increases
+- Removing elements → sum decreases
+
+This property holds only for **non-negative numbers**.
+
+---
+
+## ❌ Why it fails for negative numbers
+
+Example:
+
+```
+arr = [2, -1, 2], k = 3
+```
+
+- Expanding window may decrease sum
+- Shrinking window may increase sum
+
+➡️ Window becomes unpredictable  
+➡️ Sliding window fails
+
+---
+
+## ✅ When to Use Sliding Window
+
+| Array Type | Can Use Sliding Window? |
+|-----------|------------------------|
+| All positive | ✅ Yes |
+| Positive + zero | ✅ Yes |
+| Contains negatives | ❌ No |
 
 ---
 
@@ -201,7 +238,7 @@ public int longestSubarrayOptimal(int[] arr, int k) {
 
 ```
 If negatives exist → use Prefix Sum + HashMap
-If only positives → use Sliding Window
+If only non-negative → use Sliding Window
 ```
 
 ---
