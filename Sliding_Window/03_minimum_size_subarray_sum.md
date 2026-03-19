@@ -1,112 +1,234 @@
 # 209. Minimum Size Subarray Sum
 
-## Pattern
-Sliding Window (Variable Size)
+---
 
-## Problem
+## 🧠 Pattern
 
-Given an array of positive integers `nums` and a positive integer `target`, return the **minimal length of a subarray whose sum is greater than or equal to target**.
-
-If there is no such subarray, return `0` instead.
+**Sliding Window (Variable Size)**
 
 ---
 
-## Example 1
+## 📌 Problem
 
-Input  
-target = 7, nums = [2,3,1,2,4,3]
+Given an array of **positive integers** `nums` and a positive integer `target`,
+return the **minimal length of a subarray** whose sum is **greater than or equal to target**.
 
-Output  
-2
-
-Explanation  
-The subarray `[4,3]` has the minimal length under the problem constraint.
+If there is no such subarray, return `0`.
 
 ---
 
-## Example 2
+## 🧾 Constraints
 
-Input  
-target = 4, nums = [1,4,4]
-
-Output  
-1
+* `1 <= target <= 10^9`
+* `1 <= nums.length <= 10^5`
+* `1 <= nums[i] <= 10^4`
 
 ---
 
-## Example 3
+## 🔍 Examples
 
-Input  
-target = 11, nums = [1,1,1,1,1,1,1,1]
+### Example 1
 
-Output  
-0
+```id="n4z5os"
+Input: target = 7, nums = [2,3,1,2,4,3]
+Output: 2
+Explanation: [4,3]
+```
 
 ---
 
-# Java Solution
+### Example 2
 
-```java
-class Solution {
+```id="t9zjka"
+Input: target = 4, nums = [1,4,4]
+Output: 1
+```
 
-    public int minSubArrayLen(int target, int[] nums) {
+---
 
-        // return bruteForceApproach(target, nums); // TC:- O(N^2) SC:- O(1)
+### Example 3
 
-        return optimalApproach(target, nums); // TC:- O(2N) = O(N) SC:- O(1)
-    }
+```id="d2is4j"
+Input: target = 11, nums = [1,1,1,1,1,1,1,1]
+Output: 0
+```
 
-    public int bruteForceApproach(int target, int[] nums) {
+---
 
-        int minSize = Integer.MAX_VALUE;
+## 🔍 Key Insight
 
-        for (int i = 0; i < nums.length; i++) {
+```text id="s6p0j3"
+All elements are POSITIVE → sum is monotonic
+```
 
-            int sum = 0;
+👉 This allows us to use **Sliding Window**
 
-            for (int j = i; j < nums.length; j++) {
+---
 
-                sum += nums[j];
+## 🚀 Approaches
 
-                if (sum >= target) {
+---
 
-                    int length = (j - i) + 1;
+## 🧪 1. Brute Force
 
-                    minSize = Math.min(minSize, length);
-                }
-            }
-        }
+### 💡 Idea
 
-        if (minSize == Integer.MAX_VALUE) minSize = 0;
+* Try every subarray
+* Track sum
+* Update minimum length
 
-        return minSize;
-    }
+---
 
-    public int optimalApproach(int target, int[] nums) {
+### ⏱ Complexity
 
-        int minSize = Integer.MAX_VALUE;
+```text id="n6o6a0"
+Time Complexity: O(N^2)
+Space Complexity: O(1)
+```
+
+---
+
+### 💻 Code
+
+```java id="p5m4ho"
+public int bruteForceApproach(int target, int[] nums) {
+
+    int minSize = Integer.MAX_VALUE;
+
+    for (int i = 0; i < nums.length; i++) {
+
         int sum = 0;
-        int startPos = 0;
 
-        for (int i = 0; i < nums.length; i++) {
+        for (int j = i; j < nums.length; j++) {
 
-            sum += nums[i];
+            sum += nums[j];
 
-            while (sum >= target) { 
-                // This while loop doesn't run N times for each iteration,
-                // so overall complexity remains O(N)
-
-                int length = (i - startPos) + 1;
-
-                minSize = Math.min(minSize, length);
-
-                sum -= nums[startPos];
-                startPos++;
+            if (sum >= target) {
+                minSize = Math.min(minSize, (j - i) + 1);
             }
         }
-
-        if (minSize == Integer.MAX_VALUE) minSize = 0;
-
-        return minSize;
     }
+
+    return minSize == Integer.MAX_VALUE ? 0 : minSize;
 }
+```
+
+---
+
+## ⚡ 2. Optimal (Sliding Window)
+
+### 💡 Idea
+
+```text id="tq2r8u"
+Expand → until sum >= target  
+Shrink → while sum >= target (to minimize length)
+```
+
+---
+
+### 🧠 Why It Works
+
+* All numbers are **positive**
+* Sum increases on expansion, decreases on shrinking
+* Window behaves predictably
+
+---
+
+### ⏱ Complexity
+
+```text id="5hzx4h"
+Time Complexity: O(N)
+- Each element is added once and removed once → 2N
+
+Space Complexity: O(1)
+```
+
+---
+
+### 💻 Code
+
+```java id="6g7j2z"
+public int optimalApproach(int target, int[] nums) {
+
+    int minSize = Integer.MAX_VALUE;
+    int sum = 0;
+    int left = 0;
+
+    for (int right = 0; right < nums.length; right++) {
+
+        // Expand window
+        sum += nums[right];
+
+        // Shrink window while valid
+        while (sum >= target) {
+
+            // Update answer BEFORE shrinking
+            minSize = Math.min(minSize, right - left + 1);
+
+            sum -= nums[left];
+            left++;
+        }
+    }
+
+    return minSize == Integer.MAX_VALUE ? 0 : minSize;
+}
+```
+
+---
+
+## 🔁 Sliding Window Visualization
+
+```id="9j2f7y"
+target = 7
+
+[2,3,1,2] → sum = 8 ✅ (length 4)
+shrink → [3,1,2] → sum = 6 ❌
+
+continue...
+
+[4,3] → sum = 7 ✅ (length 2) ⭐
+```
+
+---
+
+## ⚠️ Important Notes
+
+* Works **only for positive numbers**
+* If negatives exist → ❌ Sliding window fails
+  → use **Prefix Sum**
+
+---
+
+## 🧩 Pattern Summary
+
+| Feature     | Value          |
+| ----------- | -------------- |
+| Window Type | Variable       |
+| Expand      | Always         |
+| Shrink      | While valid    |
+| Goal        | Minimum length |
+
+---
+
+## 🔥 Golden Rule
+
+```text id="k6t7sj"
+MIN problem → update → shrink
+```
+
+---
+
+## 🚀 Interview One-Liner
+
+> “Since all elements are positive, I use a sliding window where I expand to reach the target sum and shrink the window to find the minimum length.”
+
+---
+
+## 🎯 Final Takeaway
+
+```text id="4v4nfw"
+Positive numbers + sum constraint + minimum length  
+→ Sliding Window (Shrink while VALID)
+```
+
+---
