@@ -1,54 +1,92 @@
 # Subarray Sum Equals K
 
-## Problem
+---
 
-Given an integer array `nums` and an integer `k`,  
-return the **total number of subarrays** whose sum equals `k`.
+## 🧠 Pattern
+
+**Prefix Sum + HashMap (Frequency Map)**
 
 ---
 
-## Examples
+## 📌 Problem
+
+Given an integer array `nums` and an integer `k`,
+return the **total number of subarrays** whose sum equals `k`.
+
+> A subarray is a **contiguous non-empty sequence**.
+
+---
+
+## 🔍 Examples
 
 ### Example 1
-```
+
+```id="ex1"
 Input: nums = [1,1,1], k = 2
 Output: 2
-Explanation: [1,1] (two times)
 ```
 
 ---
 
 ### Example 2
-```
+
+```id="ex2"
 Input: nums = [1,2,3], k = 3
 Output: 2
-Explanation: [1,2], [3]
 ```
 
 ---
 
-# Pattern
+## 🔍 Key Insight
 
-```
-Prefix Sum + HashMap (Frequency Map)
+```text id="key1"
+We need COUNT → not length
 ```
 
 ---
 
-# 🧪 Brute Force Approach
+### 💡 Core Formula
 
-## Idea
+```text id="key2"
+sum(i) - sum(j) = k  
+→ sum(j) = sum(i) - k
+```
 
-- Generate all subarrays
-- Calculate sum for each
-- If sum == k → increment count
+👉 For every index, check:
+
+```text id="key3"
+"How many previous prefix sums = (current sum - k)?"
+```
 
 ---
 
-## Java Code (Brute)
+# 🚀 Approaches
 
-```java
-public int subarraySumBrute(int[] nums, int k) {
+---
+
+## 🧪 1. Brute Force
+
+### 💡 Idea
+
+* Generate all subarrays
+* Compute sum
+* Count valid ones
+
+---
+
+### ⏱ Complexity
+
+```text id="bf"
+Time Complexity: O(N^2)
+Space Complexity: O(1)
+```
+
+---
+
+### 💻 Code
+
+```java id="bfcode"
+public int bruteForceApproach(int[] nums, int k) {
 
     int count = 0;
 
@@ -72,54 +110,59 @@ public int subarraySumBrute(int[] nums, int k) {
 
 ---
 
-## Complexity (Brute)
+## ⚡ 2. Optimal (Prefix Sum)
 
-- Time: `O(n^2)`
-- Space: `O(1)`
+### 💡 Idea
 
----
-
-# 🚀 Optimized Approach (Prefix Sum + HashMap)
-
-## Idea
-
-- Maintain prefix sum
-- If `(sum - k)` exists → subarray found
-- Use map to store **frequency of prefix sums**
-
----
-
-## 🔥 Key Logic
-
+```text id="opt1"
+Maintain prefix sum and its frequency
 ```
-If sum(i) - sum(j) = k
-→ sum(j) = sum(i) - k
+
+```text id="opt2"
+If (sum - k) exists → add its frequency
 ```
 
 ---
 
-## Java Code (Optimal)
+### 🧠 Why It Works
 
-```java
-public int subarraySum(int[] nums, int k) {
+* Each prefix sum represents a potential start
+* Frequency handles multiple subarrays
+
+---
+
+### ⏱ Complexity
+
+```text id="opt3"
+Time Complexity: O(N)
+Space Complexity: O(N)
+```
+
+---
+
+### 💻 Code
+
+```java id="optcode"
+public int optimisedApproach(int[] nums, int k) {
 
     Map<Integer, Integer> map = new HashMap<>();
 
     int sum = 0;
     int count = 0;
 
-    map.put(0, 1); // important
+    // Important: handles subarrays starting at index 0
+    map.put(0, 1);
 
     for (int i = 0; i < nums.length; i++) {
 
         sum += nums[i];
 
-        int prefix = sum - k;
-
-        if (map.containsKey(prefix)) {
-            count += map.get(prefix); // important
+        // Check if required prefix exists
+        if (map.containsKey(sum - k)) {
+            count += map.get(sum - k);
         }
 
+        // Store prefix sum frequency
         map.put(sum, map.getOrDefault(sum, 0) + 1);
     }
 
@@ -129,93 +172,58 @@ public int subarraySum(int[] nums, int k) {
 
 ---
 
-## ⚠️ Important Points
+## 🔁 Prefix Sum Visualization
 
-### 1. Why `map.put(0,1)`?
+```id="vis"
+nums = [1,1,1], k = 2
 
-```
-Handles subarrays starting from index 0
-```
+sum = 1 → need -1 ❌  
+sum = 2 → need 0 ✅  
+sum = 3 → need 1 ✅  
 
-Example:
-```
-[1,2,3], k = 3
-```
-
-When sum = 3 → prefix = 0 → count++
+Total = 2
 ```
 
 ---
 
-### 2. Why `count += map.get(prefix)`?
+## ⚠️ Important Notes
 
-```
-Because multiple subarrays can have same prefix sum
+* Sliding Window ❌ (fails with negative numbers)
+* Must use **Prefix Sum**
+
+---
+
+## 🧩 Pattern Summary
+
+| Feature        | Value      |
+| -------------- | ---------- |
+| Type           | Prefix Sum |
+| Goal           | Count      |
+| Data Structure | HashMap    |
+| Key Operation  | sum - k    |
+
+---
+
+## 🔥 Golden Rule
+
+```text id="rule1"
+COUNT → Prefix Sum  
+LENGTH → Sliding Window
 ```
 
 ---
 
-## Complexity (Optimal)
+## 🚀 Interview One-Liner
 
-- Time: `O(n)`
-- Space: `O(n)`
-
----
-
-# 🔍 Dry Run
-
-### Input: `[1,1,1], k = 2`
-
-```
-sum = 1 → prefix = -1 → not found
-map = {0:1, 1:1}
-
-sum = 2 → prefix = 0 → count = 1
-map = {0:1, 1:1, 2:1}
-
-sum = 3 → prefix = 1 → count = 2
-```
+> “Since we need to count subarrays and the array can contain negative numbers, I use prefix sum with a HashMap to track frequencies.”
 
 ---
 
-# 🧠 Key Insight
+## 🎯 Final Takeaway
 
-```
-Count subarrays → use prefix sum frequency
-```
-
----
-
-# ❌ Why Sliding Window Fails
-
-```
-Array may contain negative numbers
-→ sum is not monotonic
-→ window expansion/shrinking breaks
+```text id="take"
+Counting subarrays → Prefix Sum  
+NOT Sliding Window
 ```
 
 ---
-
-# 🔁 Variations
-
-| Problem | Approach |
-|--------|--------|
-| Count subarrays with sum k | Prefix sum + frequency |
-| Longest subarray with sum k | Prefix sum + first occurrence |
-| Subarray sum divisible by k | Prefix sum + modulo |
-
----
-
-# ⚠️ Mistakes to Avoid
-
-- Forgetting `map.put(0,1)` ❌
-- Using `+1` instead of frequency ❌
-- Trying sliding window ❌
-
----
-
-# 📌 Related Problems
-
-- Longest Subarray with Sum K
-- Subarray Sum Divisible by K
-- Binary Subarrays With Sum
