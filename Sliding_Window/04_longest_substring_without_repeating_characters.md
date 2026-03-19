@@ -1,125 +1,242 @@
 # 3. Longest Substring Without Repeating Characters
 
-## Pattern
-Sliding Window (Variable Size)  
-No duplicate characters allowed
+---
+
+## 🧠 Pattern
+
+**Sliding Window (Variable Size) + HashSet**
 
 ---
 
-## Problem
+## 📌 Problem
 
-Given a string `s`, find the length of the **longest substring without repeating characters**.
+Given a string `s`, find the length of the **longest substring** without repeating characters.
 
-A substring must contain **contiguous characters**.
-
----
-
-## Example 1
-
-Input  
-s = "abcabcbb"
-
-Output  
-3
-
-Explanation  
-The answer is `"abc"` with length **3**.  
-Other valid substrings are `"bca"` and `"cab"`.
+> ⚠️ A substring must be **contiguous**.
 
 ---
 
-## Example 2
+## 🧾 Constraints
 
-Input  
-s = "bbbbb"
-
-Output  
-1
-
-Explanation  
-The answer is `"b"`.
+* `0 <= s.length <= 5 * 10^4`
+* `s` consists of English letters, digits, symbols, and spaces
 
 ---
 
-## Example 3
+## 🔍 Examples
 
-Input  
-s = "pwwkew"
+### Example 1
 
-Output  
-3
-
-Explanation  
-The answer is `"wke"`.
-
-Note: `"pwke"` is a **subsequence**, not a substring.
+```id="n1q2w3"
+Input: s = "abcabcbb"
+Output: 3
+Explanation: "abc"
+```
 
 ---
 
-# Java Solution
+### Example 2
 
-```java
-class Solution {
+```id="n2q3w4"
+Input: s = "bbbbb"
+Output: 1
+Explanation: "b"
+```
 
-    public int lengthOfLongestSubstring(String s) {
+---
 
-        // return bruteForceApproach(s); // TC:- O(N²) SC:- O(N)
+### Example 3
 
-        return optimisedApproach(s); // TC:- O(N) SC:- O(N)
-    }
+```id="n3q4w5"
+Input: s = "pwwkew"
+Output: 3
+Explanation: "wke"
+```
 
-    public int bruteForceApproach(String s) {
+---
 
-        int maxSize = 0;
+## 🔍 Key Insight
 
-        for (int i = 0; i < s.length(); i++) {
+```text id="f3p8z1"
+We need longest substring with ALL UNIQUE characters
+```
 
-            HashSet<Character> hashSet = new HashSet<>();
+👉 Maintain a window with **no duplicates**
 
-            for (int j = i; j < s.length(); j++) {
+---
 
-                if (!hashSet.contains(s.charAt(j))){
-                    hashSet.add(s.charAt(j));
-                }
-                else {
-                    maxSize = Math.max(maxSize, hashSet.size());
-                    break;
-                }
+# 🚀 Approaches
+
+---
+
+## 🧪 1. Brute Force
+
+### 💡 Idea
+
+* Try all substrings
+* Check uniqueness using HashSet
+
+---
+
+### ⏱ Complexity
+
+```text id="bf1"
+Time Complexity: O(N^2)
+Space Complexity: O(N)
+```
+
+---
+
+### 💻 Code
+
+```java id="bfcode"
+public int bruteForceApproach(String s) {
+
+    int maxSize = 0;
+
+    for (int i = 0; i < s.length(); i++) {
+
+        HashSet<Character> set = new HashSet<>();
+
+        for (int j = i; j < s.length(); j++) {
+
+            char ch = s.charAt(j);
+
+            if (!set.contains(ch)) {
+                set.add(ch);
+            } else {
+                break;
             }
 
-            maxSize = Math.max(maxSize, hashSet.size());
+            maxSize = Math.max(maxSize, set.size());
         }
-
-        return maxSize;
     }
 
-    public int optimisedApproach(String s) {
-
-        int maxSize = 0;
-
-        int i = 0;
-        int j = 0;
-
-        HashSet<Character> hashSet = new HashSet<>();
-
-        while (j < s.length()){
-
-            if (!hashSet.contains(s.charAt(j))){
-
-                hashSet.add(s.charAt(j));
-
-                maxSize = Math.max(maxSize, (j - i) + 1);
-
-                j++;
-            }
-            else {
-
-                hashSet.remove(s.charAt(i));
-
-                i++;
-            }
-        }
-
-        return maxSize;
-    }
+    return maxSize;
 }
+```
+
+---
+
+## ⚡ 2. Optimal (Sliding Window)
+
+### 💡 Idea
+
+```text id="opt1"
+Expand → until duplicate appears  
+Shrink → until duplicate removed  
+Track max length
+```
+
+---
+
+### 🧠 Why It Works
+
+* We maintain a **valid window (no duplicates)**
+* Adjust dynamically using two pointers
+
+---
+
+### ⏱ Complexity
+
+```text id="opt2"
+Time Complexity: O(N)
+- Each character is added and removed at most once
+
+Space Complexity: O(N)
+- HashSet stores characters
+```
+
+---
+
+### 💻 Code
+
+```java id="optcode"
+public int optimisedApproach(String s) {
+
+    int maxSize = 0;
+    int left = 0;
+
+    HashSet<Character> set = new HashSet<>();
+
+    for (int right = 0; right < s.length(); right++) {
+
+        char ch = s.charAt(right);
+
+        // Shrink window until duplicate is removed
+        while (set.contains(ch)) {
+            set.remove(s.charAt(left));
+            left++;
+        }
+
+        // Add current character
+        set.add(ch);
+
+        // Update max length
+        maxSize = Math.max(maxSize, right - left + 1);
+    }
+
+    return maxSize;
+}
+```
+
+---
+
+## 🔁 Sliding Window Visualization
+
+```id="vis1"
+"abcabcbb"
+
+abc → valid  
+abca → duplicate → shrink → bca  
+bca → valid
+```
+
+---
+
+## ⚠️ Important Notes
+
+* This is a **MAX problem**
+* So:
+
+```text id="rule1"
+Shrink when INVALID (duplicate found)
+```
+
+---
+
+## 🧩 Pattern Summary
+
+| Feature        | Value         |
+| -------------- | ------------- |
+| Window Type    | Variable      |
+| Constraint     | No duplicates |
+| Data Structure | HashSet       |
+| Expand         | Always        |
+| Shrink         | While invalid |
+| Goal           | Max length    |
+
+---
+
+## 🔥 Golden Rule
+
+```text id="rule2"
+MAX problem → shrink when INVALID
+```
+
+---
+
+## 🚀 Interview One-Liner
+
+> “I use a sliding window with a HashSet to maintain unique characters. When a duplicate appears, I shrink the window until it becomes valid again.”
+
+---
+
+## 🎯 Final Takeaway
+
+```text id="take1"
+Longest substring + uniqueness constraint  
+→ Sliding Window + HashSet
+```
+
+---
