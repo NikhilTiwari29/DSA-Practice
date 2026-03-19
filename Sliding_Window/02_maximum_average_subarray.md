@@ -10,9 +10,41 @@
 
 ## 📌 Problem
 
-You are given an integer array `nums` and an integer `k`.
+You are given an integer array `nums` consisting of `n` elements, and an integer `k`.
 
-Find a **contiguous subarray of size k** that has the **maximum average value**.
+Find a **contiguous subarray whose length is equal to `k`** that has the **maximum average value** and return this value.
+
+Any answer with a calculation error less than `10^-5` will be accepted.
+
+---
+
+## 🧾 Constraints
+
+* `n == nums.length`
+* `1 <= k <= n <= 10^5`
+* `-10^4 <= nums[i] <= 10^4`
+
+---
+
+## 🔍 Examples
+
+### Example 1
+
+```
+Input: nums = [1,12,-5,-6,50,3], k = 4
+Output: 12.75000
+Explanation:
+Maximum average = (12 - 5 - 6 + 50) / 4 = 51 / 4 = 12.75
+```
+
+---
+
+### Example 2
+
+```
+Input: nums = [5], k = 1
+Output: 5.00000
+```
 
 ---
 
@@ -26,11 +58,11 @@ Since k is FIXED → maximizing average = maximizing sum
 
 ---
 
-## 🚀 Approaches
+# 🚀 Approaches
 
 ---
 
-# 🧪 1. Brute Force
+## 🧪 1. Brute Force
 
 ### 💡 Idea
 
@@ -44,10 +76,9 @@ Since k is FIXED → maximizing average = maximizing sum
 ```text id="a8yd8k"
 Time Complexity: O(N * K)
 - Outer loop runs N times
-- Inner loop runs K times (building each window)
+- Inner loop runs K times
 
 Space Complexity: O(1)
-- No extra space used
 ```
 
 ---
@@ -59,19 +90,16 @@ public double bruteForceApproach(int[] nums, int k) {
 
     double maxAverage = Double.NEGATIVE_INFINITY;
 
-    // Try every starting index
     for (int i = 0; i < nums.length; i++) {
 
         int sum = 0;
         int count = 0;
 
-        // Build subarray of size k
         for (int j = i; j < nums.length; j++) {
 
             sum += nums[j];
             count++;
 
-            // Once size becomes k → calculate average
             if (count == k) {
                 maxAverage = Math.max(maxAverage, (double) sum / k);
                 break;
@@ -85,11 +113,9 @@ public double bruteForceApproach(int[] nums, int k) {
 
 ---
 
-# ⚡ 2. Optimal (Sliding Window)
+## ⚡ 2. Optimal (Sliding Window)
 
 ### 💡 Idea
-
-Instead of recomputing sum:
 
 ```text id="fkjdus"
 Reuse previous window sum
@@ -104,7 +130,7 @@ New window = old window + next element - previous element
 ### 🧠 Why It Works
 
 * Window size is **fixed (k)**
-* Each step does **constant work**
+* Each step takes **O(1)** time
 
 ---
 
@@ -114,10 +140,8 @@ New window = old window + next element - previous element
 Time Complexity: O(N)
 - First loop runs K times
 - Second loop runs (N - K) times
-- Total = O(N)
 
 Space Complexity: O(1)
-- Only variables used (sum, maxSum)
 ```
 
 ---
@@ -129,7 +153,7 @@ public double optimalApproach(int[] nums, int k) {
 
     int sum = 0;
 
-    // Step 1: Build first window [0 ... k-1]
+    // Step 1: Build first window
     for (int i = 0; i < k; i++) {
         sum += nums[i];
     }
@@ -139,8 +163,8 @@ public double optimalApproach(int[] nums, int k) {
     // Step 2: Slide the window
     for (int i = k; i < nums.length; i++) {
 
-        sum += nums[i];       // add next element
-        sum -= nums[i - k];   // remove element going out
+        sum += nums[i];       // add next
+        sum -= nums[i - k];   // remove previous
 
         maxSum = Math.max(maxSum, sum);
     }
@@ -151,9 +175,9 @@ public double optimalApproach(int[] nums, int k) {
 
 ---
 
-# 🔁 Sliding Window Visualization
+## 🔁 Sliding Window Visualization
 
-```id="6vxpa7"
+```
 Window size = k
 
 [1,12,-5,-6] → sum = 2
@@ -163,7 +187,7 @@ Window size = k
 
 ---
 
-# ⚠️ Important Notes
+## ⚠️ Important Notes
 
 * No need for:
 
@@ -175,7 +199,7 @@ Window size = k
 
 ---
 
-# 🧩 Pattern Summary
+## 🧩 Pattern Summary
 
 | Feature     | Value           |
 | ----------- | --------------- |
@@ -187,13 +211,13 @@ Window size = k
 
 ---
 
-# 🚀 Interview One-Liner
+## 🚀 Interview One-Liner
 
-> “Since the subarray size is fixed, I use a sliding window where I reuse the previous sum by adding the next element and removing the previous one, achieving O(n) time complexity.”
+> “Since the subarray size is fixed, I use a sliding window and reuse the previous sum by adding the next element and removing the previous one, achieving O(n) time complexity.”
 
 ---
 
-# 🎯 Final Takeaway
+## 🎯 Final Takeaway
 
 ```text id="xtdaqr"
 Fixed size k → Sliding Window  
