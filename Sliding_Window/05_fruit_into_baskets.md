@@ -1,133 +1,255 @@
 # 904. Fruit Into Baskets
 
-## Pattern
-Sliding Window (Variable Size)  
-At most **2 distinct elements**
+---
+
+## 🧠 Pattern
+
+**Sliding Window (Variable Size) + HashMap (At Most K Distinct)**
 
 ---
 
-## Problem
+## 📌 Problem
 
-You are visiting a farm that has a single row of fruit trees arranged from left to right.  
-The trees are represented by an integer array `fruits` where `fruits[i]` is the type of fruit the `i`th tree produces.
+You are given an integer array `fruits` where `fruits[i]` represents the type of fruit at index `i`.
 
-You want to collect as much fruit as possible with the following rules:
+You have **2 baskets**, and each basket can hold only **one type of fruit**.
 
-- You only have **two baskets**, and each basket can hold **only one type of fruit**.
-- Each basket can hold **unlimited fruits**.
-- Starting from any tree, you must pick **one fruit from each tree while moving to the right**.
-- The fruits must fit into your baskets.
-- If a fruit cannot fit into the baskets, you must **stop**.
-
-Return the **maximum number of fruits you can pick**.
+Return the **maximum number of fruits** you can collect such that the subarray contains **at most 2 distinct types**.
 
 ---
 
-## Example 1
+## 🧾 Constraints
 
-Input  
-fruits = [1,2,1]
-
-Output  
-3
-
-Explanation  
-We can pick all fruits `[1,2,1]`.
+* `1 <= fruits.length <= 10^5`
+* `0 <= fruits[i] < fruits.length`
 
 ---
 
-## Example 2
+## 🔍 Examples
 
-Input  
-fruits = [0,1,2,2]
+### Example 1
 
-Output  
-3
-
-Explanation  
-We can pick `[1,2,2]`.
-
----
-
-## Example 3
-
-Input  
-fruits = [1,2,3,2,2]
-
-Output  
-4
-
-Explanation  
-We can pick `[2,3,2,2]`.
+```id="f1"
+Input: fruits = [1,2,1]
+Output: 3
+Explanation: [1,2,1]
+```
 
 ---
 
-# Java Solution
+### Example 2
 
-```java
-class Solution {
-    public int totalFruit(int[] fruits) {
+```id="f2"
+Input: fruits = [0,1,2,2]
+Output: 3
+Explanation: [1,2,2]
+```
 
-        // return bruteForceApproach(fruits); // TC:- O(N^2)
+---
 
-        return optimalApproach(fruits); // TC:- O(N)
-    }
+### Example 3
 
-    public int bruteForceApproach(int[] fruits) {
+```id="f3"
+Input: fruits = [1,2,3,2,2]
+Output: 4
+Explanation: [2,3,2,2]
+```
 
-        int maxFruit = 0;
+---
 
-        for (int i = 0; i < fruits.length; i++) {
+## 🔍 Key Insight
 
-            int count = 0;
+```text id="key1"
+We need longest subarray with at most 2 distinct elements
+```
 
-            ArrayList<Integer> choosenFruit = new ArrayList<>();
+👉 General form:
 
-            for (int j = i; j < fruits.length; j++) {
+```text id="key2"
+Longest subarray with at most K distinct elements
+```
 
-               if (choosenFruit.size() < 2 && !choosenFruit.contains(fruits[j])){
-                   choosenFruit.add(fruits[j]);
-               }
+---
 
-               if (choosenFruit.contains(fruits[j])){
-                   count++;
-               }
-               else {
-                   break;
-               }
+# 🚀 Approaches
+
+---
+
+## 🧪 1. Brute Force
+
+### 💡 Idea
+
+* Try all subarrays
+* Track at most 2 fruit types
+
+---
+
+### ⏱ Complexity
+
+```text id="bf"
+Time Complexity: O(N^2)
+Space Complexity: O(1)
+```
+
+---
+
+### 💻 Code
+
+```java id="bfcode"
+public int bruteForceApproach(int[] fruits) {
+
+    int maxFruit = 0;
+
+    for (int i = 0; i < fruits.length; i++) {
+
+        int count = 0;
+        ArrayList<Integer> choosenFruit = new ArrayList<>();
+
+        for (int j = i; j < fruits.length; j++) {
+
+            if (choosenFruit.size() < 2 && !choosenFruit.contains(fruits[j])) {
+                choosenFruit.add(fruits[j]);
             }
 
-            maxFruit = Math.max(maxFruit, count);
-        }
-
-        return maxFruit;
-    }
-
-    public int optimalApproach(int[] fruits) {
-
-        int maxFruits = 0;
-        int left = 0;
-
-        HashMap<Integer,Integer> hashMap = new HashMap<>();
-
-        for (int right = 0; right < fruits.length; right++){
-
-            hashMap.put(fruits[right], hashMap.getOrDefault(fruits[right],0) + 1);
-
-            while (hashMap.size() > 2) {
-
-                hashMap.put(fruits[left], hashMap.get(fruits[left]) - 1);
-
-                if (hashMap.get(fruits[left]) == 0) {
-                    hashMap.remove(fruits[left]);
-                }
-
-                left++;
+            if (choosenFruit.contains(fruits[j])) {
+                count++;
+            } else {
+                break;
             }
-
-            maxFruits = Math.max(maxFruits, right - left + 1);
         }
 
-        return maxFruits;
+        maxFruit = Math.max(maxFruit, count);
     }
+
+    return maxFruit;
 }
+```
+
+---
+
+## ⚡ 2. Optimal (Sliding Window)
+
+### 💡 Idea
+
+```text id="opt1"
+Expand → allow fruits  
+Shrink → when distinct > 2  
+Track max length
+```
+
+---
+
+### 🧠 Why It Works
+
+* We maintain a window with **≤ 2 distinct fruits**
+* Use HashMap to track **frequency of fruits**
+
+---
+
+### ⏱ Complexity
+
+```text id="opt2"
+Time Complexity: O(N)
+- right pointer moves N times
+- left pointer moves N times overall
+
+Space Complexity: O(1)
+- at most 2 elements in map
+```
+
+---
+
+### 💻 Code
+
+```java id="optcode"
+public int optimalApproach(int[] fruits) {
+
+    int maxFruits = 0;
+    int left = 0;
+
+    HashMap<Integer, Integer> map = new HashMap<>();
+
+    for (int right = 0; right < fruits.length; right++) {
+
+        // Add current fruit
+        map.put(fruits[right], map.getOrDefault(fruits[right], 0) + 1);
+
+        // Shrink window if more than 2 distinct fruits
+        while (map.size() > 2) {
+
+            map.put(fruits[left], map.get(fruits[left]) - 1);
+
+            if (map.get(fruits[left]) == 0) {
+                map.remove(fruits[left]);
+            }
+
+            left++;
+        }
+
+        // Update max window size
+        maxFruits = Math.max(maxFruits, right - left + 1);
+    }
+
+    return maxFruits;
+}
+```
+
+---
+
+## 🔁 Sliding Window Visualization
+
+```id="vis"
+[1,2,3,2,2]
+
+→ [1,2,3] ❌ (3 types)  
+→ shrink → [2,3]  
+→ expand → [2,3,2,2] ✅ (max = 4)
+```
+
+---
+
+## ⚠️ Important Notes
+
+* This is a **MAX problem**
+* So:
+
+```text id="rule1"
+Shrink when INVALID (distinct > 2)
+```
+
+---
+
+## 🧩 Pattern Summary
+
+| Feature        | Value              |
+| -------------- | ------------------ |
+| Window Type    | Variable           |
+| Constraint     | At most 2 distinct |
+| Data Structure | HashMap            |
+| Expand         | Always             |
+| Shrink         | While invalid      |
+| Goal           | Max length         |
+
+---
+
+## 🔥 Golden Rule
+
+```text id="rule2"
+"At most K" → Sliding Window + shrink when INVALID
+```
+
+---
+
+## 🚀 Interview One-Liner
+
+> “This is a longest subarray problem with at most 2 distinct elements, so I use a sliding window with a HashMap to track frequencies and shrink when the constraint is violated.”
+
+---
+
+## 🎯 Final Takeaway
+
+```text id="take"
+At most K distinct → Sliding Window + HashMap
+```
+
+---
