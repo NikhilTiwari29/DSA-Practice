@@ -1,19 +1,28 @@
 # Max Consecutive Ones II
 
-## Problem
+---
 
-You are given a binary array `nums` consisting of only `0`s and `1`s.
+## 🧠 Pattern
 
-You can flip **at most one `0`** to `1`.
-
-Return the maximum number of consecutive `1`s possible.
+**Sliding Window (Variable Size) + At Most K Violations**
 
 ---
 
-## Examples
+## 📌 Problem
+
+You are given a binary array `nums` containing only `0`s and `1`s.
+
+You can flip **at most one `0`** to `1`.
+
+Return the **maximum number of consecutive `1`s** possible after at most one flip.
+
+---
+
+## 🔍 Examples
 
 ### Example 1
-```
+
+```id="ex1"
 Input: nums = [1, 0, 1, 1, 0]
 Output: 4
 Explanation: Flip first 0 → [1,1,1,1,0]
@@ -21,44 +30,63 @@ Explanation: Flip first 0 → [1,1,1,1,0]
 
 ---
 
-# Pattern
+## 🔍 Key Insight
 
+```text id="key1"
+We need longest subarray with at most 1 zero
 ```
-Sliding Window + Longest Valid Window
+
+👉 Transform problem into:
+
+```text id="key2"
+Longest subarray with at most K violations (K = 1 zero)
 ```
 
 ---
 
-# 🧪 Brute Force Approach
-
-## Idea
-
-- Try flipping each `0` one by one
-- For each flip:
-  - Count longest consecutive 1s
+# 🚀 Approaches
 
 ---
 
-## Java Code (Brute)
+## 🧪 1. Brute Force
 
-```java
-public int findMaxConsecutiveOnesBrute(int[] nums) {
+### 💡 Idea
 
-    int n = nums.length;
+* Try all subarrays
+* Count number of zeros
+* Stop if zeros > 1
+
+---
+
+### ⏱ Complexity
+
+```text id="bf"
+Time Complexity: O(N^2)
+Space Complexity: O(1)
+```
+
+---
+
+### 💻 Code
+
+```java id="bfcode"
+public int bruteForceApproach(int[] nums) {
+
     int maxLen = 0;
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < nums.length; i++) {
 
-        int zeroFlipped = 0;
+        int zeroCount = 0;
         int currentLen = 0;
 
-        for (int j = i; j < n; j++) {
+        for (int j = i; j < nums.length; j++) {
 
             if (nums[j] == 0) {
-                zeroFlipped++;
+                zeroCount++;
             }
 
-            if (zeroFlipped > 1) {
+            // If more than 1 zero → invalid
+            if (zeroCount > 1) {
                 break;
             }
 
@@ -73,30 +101,41 @@ public int findMaxConsecutiveOnesBrute(int[] nums) {
 
 ---
 
-## Complexity (Brute)
+## ⚡ 2. Optimal (Sliding Window)
 
-- Time: `O(n^2)`
-- Space: `O(1)`
+### 💡 Idea
 
----
-
-# 🚀 Optimized Approach (Sliding Window)
-
-## Idea
-
-We need the **longest subarray containing at most 1 zero**.
-
-- Use two pointers: `left` and `right`
-- Count number of zeros in window
-- If zeros > 1 → shrink window
-- Track max length
+```text id="opt1"
+Expand → include elements  
+Track zero count  
+Shrink → when zero count > 1  
+Track max length
+```
 
 ---
 
-## Java Code (Optimal)
+### 🧠 Why It Works
 
-```java
-public int findMaxConsecutiveOnes(int[] nums) {
+* We maintain a window with **≤ 1 zero**
+* This ensures we can flip at most one zero
+
+---
+
+### ⏱ Complexity
+
+```text id="opt2"
+Time Complexity: O(N)
+- Each element is processed at most twice
+
+Space Complexity: O(1)
+```
+
+---
+
+### 💻 Code
+
+```java id="optcode"
+public int optimalApproach(int[] nums) {
 
     int left = 0;
     int zeroCount = 0;
@@ -108,6 +147,7 @@ public int findMaxConsecutiveOnes(int[] nums) {
             zeroCount++;
         }
 
+        // Shrink window if more than 1 zero
         while (zeroCount > 1) {
 
             if (nums[left] == 0) {
@@ -117,6 +157,7 @@ public int findMaxConsecutiveOnes(int[] nums) {
             left++;
         }
 
+        // Update max length
         maxLen = Math.max(maxLen, right - left + 1);
     }
 
@@ -126,55 +167,61 @@ public int findMaxConsecutiveOnes(int[] nums) {
 
 ---
 
-## Complexity (Optimized)
+## 🔁 Sliding Window Visualization
 
-- Time: `O(n)`
-- Space: `O(1)`
+```id="vis"
+[1,0,1,1,0]
 
----
-
-# 🔍 Dry Run
-
-### Input: `[1, 0, 1, 1, 0]`
-
-```
-[1] → [1,0] → [1,0,1] → [1,0,1,1] ✅
-Add next 0 → invalid (2 zeros)
-Shrink → [0,1,1,0] → valid
-```
-
-Max Length = `4`
-
----
-
-# 🧠 Key Insight
-
-```
-Find longest subarray with at most 1 zero
+→ [1,0,1,1] ✅ (1 zero)
+→ add next → [1,0,1,1,0] ❌ (2 zeros)
+→ shrink → [0,1,1,0] → valid
 ```
 
 ---
 
-# ⚠️ Mistakes to Avoid
+## ⚠️ Important Notes
 
-- Not shrinking window when zero count > 1
-- Using `if` instead of `while`
-- Forgetting to decrement zero count
+* This is a **MAX problem**
+* So:
 
----
-
-# 🔁 Variations
-
-| Problem | Change |
-|--------|--------|
-| Flip at most K zeros | Allow `zeroCount <= k` |
-| No flips allowed | Just count consecutive 1s |
-| Exactly one flip | Slight modification needed |
+```text id="rule1"
+Shrink when INVALID (zeroCount > 1)
+```
 
 ---
 
-# 📌 Related Problems
+## 🧩 Pattern Summary
 
-- Max Consecutive Ones I
-- Max Consecutive Ones III
-- Longest Repeating Character Replacement
+| Feature        | Value          |
+| -------------- | -------------- |
+| Window Type    | Variable       |
+| Constraint     | At most 1 zero |
+| Data Structure | Counter        |
+| Expand         | Always         |
+| Shrink         | While invalid  |
+| Goal           | Max length     |
+
+---
+
+## 🔥 Golden Rule
+
+```text id="rule2"
+At most K violations → Sliding Window
+```
+
+---
+
+## 🚀 Interview One-Liner
+
+> “I convert this to finding the longest subarray with at most one zero, and use a sliding window with a counter to maintain the constraint.”
+
+---
+
+## 🎯 Final Takeaway
+
+```text id="take"
+At most K constraint → Sliding Window  
+Track violations → shrink when invalid
+```
+
+---
