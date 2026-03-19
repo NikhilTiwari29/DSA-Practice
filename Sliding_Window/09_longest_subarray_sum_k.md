@@ -1,268 +1,236 @@
-# Longest Subarray with Sum K
-
-## Problem
-
-Given an array `arr[]` of integers and an integer `k`,  
-find the **length of the longest subarray** whose sum equals `k`.
+# Subarray Sum Equals K
 
 ---
 
-## Examples
+## 🧠 Pattern
+
+**Prefix Sum + HashMap (Frequency Map)**
+
+---
+
+## 📌 Problem
+
+Given an integer array `nums` and an integer `k`,
+return the **total number of subarrays** whose sum equals `k`.
+
+> A subarray is a **contiguous non-empty sequence**.
+
+---
+
+## 🔍 Examples
 
 ### Example 1
-```
-Input: arr = [1, 2, 3, 1, 1, 1], k = 3
-Output: 3
-Explanation: Subarray [1,1,1]
+
+```id="ex1"
+Input: nums = [1,1,1], k = 2
+Output: 2
 ```
 
 ---
 
 ### Example 2
-```
-Input: arr = [1, 2, 3, 4, 5], k = 9
-Output: 3
-Explanation: Subarray [2,3,4]
-```
 
----
-
-# Pattern
-
-```
-Prefix Sum + HashMap
+```id="ex2"
+Input: nums = [1,2,3], k = 3
+Output: 2
 ```
 
 ---
 
-# 🧪 Brute Force Approach
+## 🔍 Key Insight
 
-## Idea
-
-- Generate all subarrays
-- Calculate sum for each
-- If sum == k → update max length
+```text id="key1"
+We need COUNT of subarrays → not length
+```
 
 ---
 
-## Java Code (Brute)
+### 💡 Core Formula
 
-```java
-public int longestSubarrayBrute(int[] arr, int k) {
+```text id="key2"
+sum(i) - sum(j) = k  
+→ sum(j) = sum(i) - k
+```
 
-    int maxLength = 0;
+👉 For each index:
 
-    for (int i = 0; i < arr.length; i++) {
+```text id="key3"
+Check how many previous prefix sums = (current sum - k)
+```
+
+---
+
+# 🚀 Approaches
+
+---
+
+## 🧪 1. Brute Force
+
+### 💡 Idea
+
+* Generate all subarrays
+* Compute sum
+* Count valid ones
+
+---
+
+### ⏱ Complexity
+
+```text id="bf"
+Time Complexity: O(N^2)
+Space Complexity: O(1)
+```
+
+---
+
+### 💻 Code
+
+```java id="bfcode"
+public int bruteForceApproach(int[] nums, int k) {
+
+    int count = 0;
+
+    for (int i = 0; i < nums.length; i++) {
 
         int sum = 0;
 
-        for (int j = i; j < arr.length; j++) {
+        for (int j = i; j < nums.length; j++) {
 
-            sum += arr[j];
+            sum += nums[j];
 
             if (sum == k) {
-                maxLength = Math.max(maxLength, j - i + 1);
+                count++;
             }
         }
     }
 
-    return maxLength;
+    return count;
 }
 ```
 
 ---
 
-## Complexity (Brute)
+## ⚡ 2. Optimal (Prefix Sum + HashMap)
 
-- Time: `O(n^2)`
-- Space: `O(1)`
+### 💡 Idea
 
----
+```text id="opt1"
+Maintain prefix sum and its frequency
+```
 
-# ⚡ Better Approach (Prefix Sum + HashMap)
-
-## Idea
-
-- Maintain prefix sum
-- If `(sum - k)` exists → subarray found
-- Store first occurrence of each prefix sum
+```text id="opt2"
+If (sum - k) exists → add its frequency
+```
 
 ---
 
-## Java Code (Better)
+### 🧠 Why It Works
 
-```java
-public int longestSubarrayBetter(int[] arr, int k) {
+* Prefix sum stores cumulative sum till index
+* HashMap tracks how many times a prefix occurred
+* Multiple matches → multiple subarrays
 
-    HashMap<Integer, Integer> map = new HashMap<>();
+---
+
+### ⏱ Complexity
+
+```text id="opt3"
+Time Complexity: O(N)
+Space Complexity: O(N)
+```
+
+---
+
+### 💻 Code
+
+```java id="optcode"
+public int optimisedApproach(int[] nums, int k) {
+
+    Map<Integer, Integer> map = new HashMap<>();
 
     int sum = 0;
-    int maxLength = 0;
+    int count = 0;
 
-    for (int i = 0; i < arr.length; i++) {
+    // Important: handles subarrays starting from index 0
+    map.put(0, 1);
 
-        sum += arr[i];
+    for (int i = 0; i < nums.length; i++) {
 
-        if (sum == k) {
-            maxLength = Math.max(maxLength, i + 1);
+        sum += nums[i];
+
+        int prefix = sum - k;
+
+        // If prefix exists → valid subarray(s) found
+        if (map.containsKey(prefix)) {
+            count += map.get(prefix);
         }
 
-        if (map.containsKey(sum - k)) {
-            maxLength = Math.max(maxLength, i - map.get(sum - k));
-        }
-
-        // store only first occurrence
-        if (!map.containsKey(sum)) {
-            map.put(sum, i);
-        }
+        // Store current prefix sum frequency
+        map.put(sum, map.getOrDefault(sum, 0) + 1);
     }
 
-    return maxLength;
+    return count;
 }
 ```
 
 ---
 
-## Complexity (Better)
+## 🔁 Prefix Sum Visualization
 
-- Time: `O(n)`
-- Space: `O(n)`
+```id="vis"
+nums = [1,1,1], k = 2
 
----
+sum = 1 → need -1 ❌  
+sum = 2 → need 0 ✅  
+sum = 3 → need 1 ✅  
 
-# 🚀 Optimal Approach (Sliding Window)
-
-## ⚠️ Important Condition
-
-```
-Works ONLY when array contains NON-NEGATIVE numbers (positives and zero)
+Total = 2
 ```
 
 ---
 
-## ❓ Why this condition is required
+## ⚠️ Important Notes
 
-Sliding window depends on **monotonic behavior of sum**:
+* Sliding Window ❌ (fails with negatives)
+* Prefix Sum works for:
 
-- Adding elements → sum increases
-- Removing elements → sum decreases
-
-This property holds only for **non-negative numbers**.
-
----
-
-## ❌ Why it fails for negative numbers
-
-Example:
-
-```
-arr = [2, -1, 2], k = 3
-```
-
-- Expanding window may decrease sum
-- Shrinking window may increase sum
-
-➡️ Window becomes unpredictable  
-➡️ Sliding window fails
+  * positive numbers
+  * negative numbers
+  * mixed arrays
 
 ---
 
-## ✅ When to Use Sliding Window
+## 🧩 Pattern Summary
 
-| Array Type | Can Use Sliding Window? |
-|-----------|------------------------|
-| All positive | ✅ Yes |
-| Positive + zero | ✅ Yes |
-| Contains negatives | ❌ No |
-
----
-
-## Idea
-
-- Use two pointers (`i`, `j`)
-- Expand window
-- If sum > k → shrink window
-- Track max length
+| Feature        | Value           |
+| -------------- | --------------- |
+| Type           | Prefix Sum      |
+| Goal           | Count subarrays |
+| Data Structure | HashMap         |
+| Key Operation  | sum - k         |
 
 ---
 
-## Java Code (Optimal)
+## 🔥 Golden Rule
 
-```java
-public int longestSubarrayOptimal(int[] arr, int k) {
-
-    int i = 0;
-    int sum = 0;
-    int maxLength = 0;
-
-    for (int j = 0; j < arr.length; j++) {
-
-        sum += arr[j];
-
-        while (sum > k && i <= j) {
-            sum -= arr[i];
-            i++;
-        }
-
-        if (sum == k) {
-            maxLength = Math.max(maxLength, j - i + 1);
-        }
-    }
-
-    return maxLength;
-}
+```text id="rule1"
+COUNT → Prefix Sum  
+LENGTH → Sliding Window
 ```
 
 ---
 
-## Complexity (Optimal)
+## 🚀 Interview One-Liner
 
-- Time: `O(n)`
-- Space: `O(1)`
+> “Since we need to count subarrays and the array may contain negative numbers, I use prefix sum with a HashMap to track frequencies.”
 
 ---
 
-# 🔍 Dry Run
+## 🎯 Final Takeaway
 
-### Input: `[1, 2, 3, 1, 1, 1], k = 3`
-
-```
-[1,2] → sum = 3 ✅
-[3] → sum = 3 ✅
-[1,1,1] → sum = 3 ✅ (max = 3)
+```text id="take"
+Counting subarrays → Prefix Sum  
+Not Sliding Window
 ```
 
 ---
-
-# 🧠 Key Insight
-
-```
-If negatives exist → use Prefix Sum + HashMap
-If only non-negative → use Sliding Window
-```
-
----
-
-# ⚠️ Mistakes to Avoid
-
-- Using sliding window when negatives exist ❌
-- Not storing first occurrence of prefix sum ❌
-- Updating map incorrectly ❌
-
----
-
-# 🔁 Variations
-
-| Problem | Approach |
-|--------|--------|
-| Count subarrays with sum k | Prefix sum frequency |
-| Longest subarray with sum ≤ k | Sliding window |
-| Binary array (0/1) | Sliding window works |
-
----
-
-# 📌 Related Problems
-
-- Subarray Sum Equals K
-- Longest Subarray with Sum ≤ K
-- Maximum Size Subarray Sum Equals K
