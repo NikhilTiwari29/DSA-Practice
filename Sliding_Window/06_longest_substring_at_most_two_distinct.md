@@ -1,23 +1,38 @@
 # Longest Substring with At Most Two Distinct Characters
 
-## Problem
+---
 
-You are given a string `s`.  
-Find the length of the **longest substring** that contains **at most 2 distinct characters**.
+## 🧠 Pattern
+
+**Sliding Window (Variable Size) + HashMap (At Most K Distinct)**
 
 ---
 
-## Examples
+## 📌 Problem
+
+You are given a string `s`.
+
+Find the length of the **longest substring** that contains **at most 2 distinct characters**.
+
+> A substring must be **contiguous**.
+
+---
+
+## 🔍 Examples
 
 ### Example 1
-```
+
+```id="ex1"
 Input: s = "eceba"
 Output: 3
 Explanation: "ece"
 ```
 
+---
+
 ### Example 2
-```
+
+```id="ex2"
 Input: s = "ccaabbb"
 Output: 5
 Explanation: "aabbb"
@@ -25,41 +40,59 @@ Explanation: "aabbb"
 
 ---
 
-# Pattern
+## 🔍 Key Insight
 
+```text id="key1"
+We need longest substring with at most 2 distinct characters
 ```
-Sliding Window + K Distinct Elements
+
+👉 General form:
+
+```text id="key2"
+Longest substring with at most K distinct characters
 ```
 
 ---
 
-# 🧪 Brute Force Approach
-
-## Idea
-
-- Generate all substrings
-- For each substring:
-  - Count distinct characters
-  - If ≤ 2 → update answer
+# 🚀 Approaches
 
 ---
 
-## Java Code (Brute Force)
+## 🧪 1. Brute Force
 
-```java
-public int lengthOfLongestSubstringTwoDistinctBrute(String s) {
+### 💡 Idea
 
-    int n = s.length();
+* Generate all substrings
+* Track distinct characters using HashSet
+* Stop when distinct > 2
+
+---
+
+### ⏱ Complexity
+
+```text id="bf"
+Time Complexity: O(N^2)
+Space Complexity: O(1)
+```
+
+---
+
+### 💻 Code
+
+```java id="bfcode"
+public int bruteForceApproach(String s) {
+
     int maxLength = 0;
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < s.length(); i++) {
 
         HashSet<Character> set = new HashSet<>();
 
-        for (int j = i; j < n; j++) {
+        for (int j = i; j < s.length(); j++) {
 
             set.add(s.charAt(j));
 
+            // If more than 2 distinct → invalid
             if (set.size() > 2) {
                 break;
             }
@@ -74,40 +107,55 @@ public int lengthOfLongestSubstringTwoDistinctBrute(String s) {
 
 ---
 
-## Complexity (Brute)
+## ⚡ 2. Optimal (Sliding Window)
 
-- Time: `O(n^2)`
-- Space: `O(1)` (at most 3 characters)
+### 💡 Idea
 
----
-
-# 🚀 Optimized Approach (Sliding Window)
-
-## Idea
-
-- Use two pointers: `left` and `right`
-- Maintain a `HashMap` for frequency
-- Expand window
-- If distinct > 2 → shrink window
-- Track max length
+```text id="opt1"
+Expand → add characters  
+Shrink → when distinct > 2  
+Track max length
+```
 
 ---
 
-## Java Code (Optimal)
+### 🧠 Why It Works
 
-```java
-public int lengthOfLongestSubstringTwoDistinct(String s) {
+* Maintain a window with **≤ 2 distinct characters**
+* Use HashMap to track **frequency**
 
-    int left = 0;
+---
+
+### ⏱ Complexity
+
+```text id="opt2"
+Time Complexity: O(N)
+- Each character is added and removed at most once
+
+Space Complexity: O(1)
+- At most 2 characters in map
+```
+
+---
+
+### 💻 Code
+
+```java id="optcode"
+public int optimalApproach(String s) {
+
     int maxLength = 0;
+    int left = 0;
 
     HashMap<Character, Integer> map = new HashMap<>();
 
     for (int right = 0; right < s.length(); right++) {
 
-        char c = s.charAt(right);
-        map.put(c, map.getOrDefault(c, 0) + 1);
+        char ch = s.charAt(right);
 
+        // Add current character
+        map.put(ch, map.getOrDefault(ch, 0) + 1);
+
+        // Shrink window if more than 2 distinct characters
         while (map.size() > 2) {
 
             char leftChar = s.charAt(left);
@@ -120,6 +168,7 @@ public int lengthOfLongestSubstringTwoDistinct(String s) {
             left++;
         }
 
+        // Update max length
         maxLength = Math.max(maxLength, right - left + 1);
     }
 
@@ -129,65 +178,59 @@ public int lengthOfLongestSubstringTwoDistinct(String s) {
 
 ---
 
-## Complexity (Optimized)
+## 🔁 Sliding Window Visualization
 
-- Time: `O(n)`
-- Space: `O(1)`
+```id="vis"
+"eceba"
 
----
-
-# 🔍 Dry Run
-
-### Input: `"eceba"`
-
-```
-e → ec → ece ✅
-eceb ❌ → shrink → eb
-```
-
-Answer = `3`
-
----
-
-### Input: `"ccaabbb"`
-
-```
-cc → ccaa → ccaab ❌
-shrink → aabbb ✅
-```
-
-Answer = `5`
-
----
-
-# 🧠 Key Insight
-
-```
-Control the number of distinct characters in the window
+e → ec → ece ✅  
+eceb ❌ → shrink → ceb  
 ```
 
 ---
 
-# ⚠️ Mistakes to Avoid
+## ⚠️ Important Notes
 
-- Using `if` instead of `while` for shrinking
-- Not removing characters when frequency becomes 0
-- Updating answer when window is invalid
+* This is a **MAX problem**
+* So:
 
----
-
-# 🔁 Variations
-
-| Problem | Approach |
-|--------|--------|
-| At most K distinct | Same template, replace `2` with `k` |
-| Exactly K distinct | atMost(k) - atMost(k-1) |
-| No duplicates | Use HashSet instead of HashMap |
+```text id="rule1"
+Shrink when INVALID (distinct > 2)
+```
 
 ---
 
-# 📌 Related Problems
+## 🧩 Pattern Summary
 
-- Longest Substring Without Repeating Characters
-- Fruit Into Baskets
-- Longest Repeating Character Replacement
+| Feature        | Value              |
+| -------------- | ------------------ |
+| Window Type    | Variable           |
+| Constraint     | At most 2 distinct |
+| Data Structure | HashMap            |
+| Expand         | Always             |
+| Shrink         | While invalid      |
+| Goal           | Max length         |
+
+---
+
+## 🔥 Golden Rule
+
+```text id="rule2"
+"At most K" → Sliding Window + shrink when INVALID
+```
+
+---
+
+## 🚀 Interview One-Liner
+
+> “This is a longest substring problem with at most 2 distinct characters, so I use a sliding window with a HashMap and shrink the window when the constraint is violated.”
+
+---
+
+## 🎯 Final Takeaway
+
+```text id="take"
+At most K distinct → Sliding Window + HashMap
+```
+
+---
